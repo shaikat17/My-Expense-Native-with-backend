@@ -1,10 +1,14 @@
-import express from 'express';
-import User from '../models/User.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import envConfig from '../config/envConfig.js';
+import express from "express";
+import User from "../models/user.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import envConfig from "../config/envConfig.js";
 
 const router = express.Router();
+
+router.get("/", (req, res) => {
+  res.send("Hello, World!");
+});
 
 // Signup for new user
 router.post('/signup', async (req, res) => {
