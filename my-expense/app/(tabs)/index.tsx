@@ -50,13 +50,11 @@ const formatTime = (isoDateString) => {
 };
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const { dateStr, timeStr } = formatCurrentDateTime();
 
   // States for modals
-  const [expenseModalVisible, setExpenseModalVisible] = useState(false);
-  const [incomeModalVisible, setIncomeModalVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState("");
 
@@ -151,7 +149,12 @@ export default function HomePage() {
         setSelectedTransactionId(null);
       }
     }} style={styles.container}>
-      <Text style={styles.welcome}>Welcome, {user?.name || "User"}!</Text>
+      <View style={styles.welcomeContainer}>
+        <Text style={styles.welcome}>Welcome, {user?.name || "User"}!</Text>
+        <Pressable onPress={logout}>
+          <Text style={styles.logoutBtn}>Log Out</Text>
+        </Pressable>
+      </View>
 
       <View style={styles.summaryCard}>
       <View style={styles.leftSide}>
@@ -199,10 +202,8 @@ export default function HomePage() {
           <View style={styles.transactionItem}>
             {/* Plus/Minus sign */}
             <Text
-              style={[
-                styles.transactionSign,
-                item.amount > 0 ? styles.incomeColor : styles.expenseColor,
-              ]}
+              style={
+                item.amount > 0 ? styles.transactionSignIncome : styles.transactionSignExpense}
             >
               {item.amount > 0 ? "+" : "-"}
             </Text>
@@ -302,11 +303,24 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: "#fff",
   },
+  welcomeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 32,
+  },
   welcome: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#0a7ea4",
-    marginBottom: 20,
+  },
+  logoutBtn: {
+    fontSize: 16,
+    backgroundColor: "#0a7ea4",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    color: "#fff",
   },
   summaryCard: {
     backgroundColor: '#0a7ea4',
@@ -399,6 +413,7 @@ const styles = StyleSheet.create({
   },
   transactionList: {
     flexGrow: 0,
+    paddingBottom: 30,
   },
   transactionItem: {
     flexDirection: "row",
@@ -408,12 +423,29 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     position: "relative", // needed for menu position
   },
-  transactionSign: {
-    width: 20,
-    fontSize: 18,
-    fontWeight: "bold",
-    marginRight: 10,
+  transactionSignIncome: {
+    color: "#27ae60",
+    backgroundColor: "rgba(39, 174, 96, 0.1)",
+    width: 30,
+    height: 30,
+    borderRadius: 50,
     textAlign: "center",
+    lineHeight: 30,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 20,
+  },
+  transactionSignExpense: {
+    color: "#e74c3c",
+    backgroundColor: "rgba(231, 76, 60, 0.1)",
+    width: 30,
+    height: 30,
+    borderRadius: 50,
+    textAlign: "center",
+    lineHeight: 30,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 20,
   },
   transactionDetails: {
     flex: 1,
