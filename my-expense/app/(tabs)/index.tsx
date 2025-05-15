@@ -1,3 +1,4 @@
+import { useAuth } from "@/context/AuthContext";
 import React, { useState } from "react";
 import {
   View,
@@ -10,7 +11,6 @@ import {
   Pressable,
   Alert,
 } from "react-native";
-import { useAuth } from "@/context/AuthContext";
 
 function formatCurrentDateTime() {
   const now = new Date();
@@ -50,7 +50,7 @@ const formatTime = (isoDateString) => {
 };
 
 export default function HomePage() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
   const { dateStr, timeStr } = formatCurrentDateTime();
 
@@ -150,7 +150,7 @@ export default function HomePage() {
       }
     }} style={styles.container}>
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcome}>Welcome, {user?.name || "User"}!</Text>
+        <Text style={styles.welcome}>Welcome, </Text>
         <Pressable onPress={logout}>
           <Text style={styles.logoutBtn}>Log Out</Text>
         </Pressable>

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 
 function LayoutInner() {
-  const { user, loading } = useAuth();
+  const { auth: { user }, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 

@@ -11,26 +11,38 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/Feather"; // 👈 Using Feather icons
 
+// Email Validation
+const isValidEmail = (email: string) => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+};
+
 export default function LoginPage() {
-  const { setUser } = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-    if (email === "user@example.com" && password === "password") {
-        const userData = { email, name: "Demo User" };
-        
-        console.log("🚀 ~ handleLogin ~ userData:", userData)
-      await AsyncStorage.setItem("user", JSON.stringify(userData));
-      setUser(userData);
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill all the fields");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
+
+    try {
+      await login(email, password);
       router.replace("/(tabs)");
-    } else {
-      Alert.alert("Login Failed", "Invalid email or password");
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", "Invalid credentials");
     }
   };
 
