@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   StyleSheet,
   Alert,
   Pressable,
@@ -11,8 +10,11 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/Feather"; // eye/eye-off icons
+import { useAuth } from "@/context/AuthContext";
 
 export default function SignupPage() {
+  const { signup } = useAuth();
+
     const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -21,7 +23,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!name || !email || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill all the fields");
       return;
@@ -31,10 +33,12 @@ export default function SignupPage() {
       Alert.alert("Error", "Passwords do not match");
       return;
     }
-
-    // Simulate account creation (replace with actual API call)
-    Alert.alert("Success", "Account created successfully");
-    router.replace("/auth/login");
+    try {
+      await signup(name, email, password);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", "Invalid credentials");
+    }
   };
 
   return (
@@ -98,7 +102,7 @@ export default function SignupPage() {
       </View>
 
       <TouchableOpacity onPress={handleSignup} style={styles.loginButton}>
-              <Text style={styles.loginBtnText}>Login</Text>
+              <Text style={styles.loginBtnText}>Sign Up</Text>
             </TouchableOpacity>
 
       <View style={styles.linkContainer}>

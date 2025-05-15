@@ -39,7 +39,6 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.replace("/(tabs)");
     } catch (error) {
       console.log(error);
       Alert.alert("Error", "Invalid credentials");

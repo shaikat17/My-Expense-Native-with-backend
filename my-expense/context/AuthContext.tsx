@@ -7,7 +7,6 @@ const AuthContext = createContext<any>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [auth, setAuth] = useState({ token: String, user: null });
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const login = async (email: string, password: string) => {
