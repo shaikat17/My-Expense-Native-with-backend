@@ -1,6 +1,7 @@
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import Loading from '@/components/Loading';
 
 function LayoutInner() {
   const { auth: { user }, loading } = useAuth();
@@ -19,7 +20,7 @@ function LayoutInner() {
     }
   }, [segments, user, loading]);
 
-  if (loading) return null;
+  if (loading) return <Loading />;
 
   return <Slot />;
 }

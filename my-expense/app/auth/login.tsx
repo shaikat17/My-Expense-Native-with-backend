@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   StyleSheet,
   Alert,
   Pressable,
@@ -50,7 +49,7 @@ export default function LoginPage() {
       <View style={styles.headTitleContainer}>
         <Text style={styles.title}>Hey,</Text>
         <Text style={styles.title}>Welcome Back To</Text>
-        <Text style={styles.title}>"My Expense"</Text>
+        <Text style={styles.title}>{"My Expense"}</Text>
       </View>
 
       <TextInput
@@ -87,7 +86,7 @@ export default function LoginPage() {
         <Pressable onPress={() => router.push("/auth/signup")}>
           <Text style={styles.link}>Create an account</Text>
         </Pressable>
-        <Pressable onPress={() => router.push("/forgot-password")}>
+        <Pressable onPress={() => router.push("../forgot-password")}>
           <Text style={styles.link}>Forgot Password?</Text>
         </Pressable>
       </View>

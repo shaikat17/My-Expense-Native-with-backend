@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const login = async (email: string, password: string) => {
+    setLoading(true);
     const res = await axiosInstance.post('/auth/login', { email, password });
   
     const { token, user } = res.data;
@@ -23,12 +24,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set context/state
     setAuth({ token, user });
   
+    setLoading(false);
     // Navigate to home screen
     router.replace('/(tabs)');
   };
   
 
   const signup = async (name: string, email: string, password: string) => {
+    setLoading(true);
     const res = await axiosInstance.post('/auth/signup', { name, email, password });
     const { token, user } = res.data;
 
@@ -36,13 +39,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await SecureStore.setItemAsync('user', JSON.stringify(user));
 
     setAuth({ token, user });
+
+    setLoading(false);
     router.replace('/(tabs)');
   };
 
   const logout = async () => {
+    setLoading(true);
     await SecureStore.deleteItemAsync('token');
     await SecureStore.deleteItemAsync('user');
-    setAuth({ token: null, user: null });
+    setAuth({ token: String, user: null });
+    setLoading(false);
     router.replace('/auth/login');
   };
 

@@ -12,10 +12,19 @@ import {
   Alert,
 } from "react-native";
 
+
 function formatCurrentDateTime() {
   const now = new Date();
-  const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
-  const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
+  const optionsDate: Intl.DateTimeFormatOptions = {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  };
+  const optionsTime: Intl.DateTimeFormatOptions = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  };
 
   const dateStr = now.toLocaleDateString(undefined, optionsDate); // e.g., "15 May 2025"
   const timeStr = now.toLocaleTimeString(undefined, optionsTime); // e.g., "2:06 PM"
@@ -24,8 +33,8 @@ function formatCurrentDateTime() {
 }
 
 const dummyTransactions = [
-  { id: "1", title: "Groceries", amount: -50, date: "2025-05-15T14:06:00" },
-  { id: "2", title: "Salary", amount: 1200, date: "2025-05-15T09:00:00" },
+  { id: "1", title: "Groceries", amount: -50, date: "2025-05-16T14:06:00" },
+  { id: "2", title: "Salary", amount: 1200, date: "2025-05-16T09:00:00" },
   { id: "3", title: "Transport", amount: -20, date: "2025-05-14T16:30:00" },
   {
     id: "4",
@@ -36,12 +45,12 @@ const dummyTransactions = [
 ];
 
 // Utility to format date as "15 May, Thu, 2:06 PM"
-const formatTime = (isoDateString) => {
+const formatTime = (isoDateString: string) => {
   const d = new Date(isoDateString);
-  const options = {
+  const options: Intl.DateTimeFormatOptions = {
     day: 'numeric',
     month: 'short',
-    weekday: 'short',
+    weekday: 'short' as 'short', // Add this type annotation
     hour: 'numeric',
     minute: 'numeric',
     hour12: true,
@@ -50,7 +59,7 @@ const formatTime = (isoDateString) => {
 };
 
 export default function HomePage() {
-  const { logout } = useAuth();
+  const { auth: { user }, logout } = useAuth();
 
   const { dateStr, timeStr } = formatCurrentDateTime();
 
@@ -59,7 +68,7 @@ export default function HomePage() {
   const [modalType, setModalType] = useState("");
 
   // States for 3-dot menu
-  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
+  const [selectedTransactionId, setSelectedTransactionId] = useState< string | number | null>(null);
   const [menuVisible, setMenuVisible] = useState(false);
 
   // Dummy state to simulate transactions (replace with real state in your app)
@@ -67,12 +76,12 @@ export default function HomePage() {
 
   // Filter transactions for today and month
   const today = new Date();
-  const isSameDay = (d1, d2) =>
+  const isSameDay = (d1: Date, d2: Date) =>
     d1.getDate() === d2.getDate() &&
     d1.getMonth() === d2.getMonth() &&
     d1.getFullYear() === d2.getFullYear();
 
-  const isSameMonth = (d1, d2) =>
+  const isSameMonth = (d1: Date, d2: Date) =>
     d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
 
   const todayTransactions = transactions.filter((t) =>
@@ -105,7 +114,7 @@ export default function HomePage() {
     setModalVisible(true);
   }
   // Toggle 3-dot menu
-  const toggleMenu = (id) => {
+  const toggleMenu = (id: string | number) => {
     if (selectedTransactionId === id && menuVisible) {
       setMenuVisible(false);
       setSelectedTransactionId(null);
@@ -150,7 +159,7 @@ export default function HomePage() {
       }
     }} style={styles.container}>
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcome}>Welcome, </Text>
+        <Text style={styles.welcome}>Welcome, {user?.name}</Text>
         <Pressable onPress={logout}>
           <Text style={styles.logoutBtn}>Log Out</Text>
         </Pressable>

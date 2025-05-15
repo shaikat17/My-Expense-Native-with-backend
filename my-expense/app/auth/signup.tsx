@@ -46,7 +46,7 @@ export default function SignupPage() {
       <View style={styles.headTitleContainer}>
         <Text style={styles.title}>Create</Text>
               <Text style={styles.title}>Your Account On</Text>
-              <Text style={styles.title}>"My Expense"</Text>
+        <Text style={styles.title}>{"My Expense"}</Text>
           </View>
           
           <TextInput
