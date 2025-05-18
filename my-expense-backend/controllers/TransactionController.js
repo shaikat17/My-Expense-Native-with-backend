@@ -51,3 +51,23 @@ export const getCurrentTransactions = async (req, res) => {
   }
 };
 
+export const deleteTransaction = async (req, res) => {
+  try {
+    const transactionId = req.params.id;
+    const userId = req.user.id;
+
+    const transaction = await Transaction.findOneAndDelete({
+      _id: transactionId,
+      user: userId,
+    });
+
+    if (!transaction) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    res.status(200).json({ message: 'Transaction deleted successfully' });
+  } catch (error) {
+    console.error('🚨 ~ deleteTransaction ~ error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
