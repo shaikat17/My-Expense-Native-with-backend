@@ -192,6 +192,9 @@ export default function HomePage() {
     );
   };
 
+  const testBtn = () => {
+  }
+
   return (
     <Pressable onPress={() => {
       if(menuVisible) {
@@ -216,6 +219,11 @@ export default function HomePage() {
 
         <Text style={styles.summaryTitle}>Month's Income</Text>
         <Text style={styles.summaryAmount}>${monthIncomeTotal.toFixed(2)}</Text>
+      </View>
+        <View>
+          <Pressable style={{backgroundColor: 'blue', padding: 10, borderRadius: 8}} onPress={testBtn}>
+            <Text style={{color: 'white'}}>Button</Text>
+          </Pressable>
       </View>
 
       <View style={styles.rightSide}>
