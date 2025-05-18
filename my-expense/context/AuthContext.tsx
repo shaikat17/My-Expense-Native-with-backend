@@ -88,6 +88,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
       Alert.alert("Error", "Failed to add transaction");
     }
+    getCurrentTransactions();
   };
 
   const getCurrentTransactions = async () => {
@@ -102,13 +103,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(false);
   };
 
+  const deleteTransaction = async (transactionId: string) => {
+    setLoading(true);
+    const res = await axiosInstance.delete(`/transactions/delete/${transactionId}`);
+
+    if (res.status === 200) {
+      // Handle success
+      setLoading(false);
+      Alert.alert("Success", "Transaction deleted successfully");
+    } else if (res.status === 404) {
+      // Handle not found
+      setLoading(false);
+      Alert.alert("Error", "Transaction not found");
+    } else {
+      // Handle error
+      setLoading(false);
+      Alert.alert("Error", "Failed to delete transaction");
+    }
+    getCurrentTransactions();
+  };
+
   useEffect(() => {
     loadUser();
     getCurrentTransactions();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, login, signup, logout, loading, addTransaction, getCurrentTransactions, setCurrentTransactions, currentTransactions }}>
+    <AuthContext.Provider value={{ auth, login, signup, logout, loading, addTransaction, getCurrentTransactions, setCurrentTransactions, currentTransactions, deleteTransaction }}>
       {children}
     </AuthContext.Provider>
   );

@@ -55,6 +55,7 @@ export default function HomePage() {
     getCurrentTransactions,
     currentTransactions,
     setCurrentTransactions,
+    deleteTransaction,
   } = useAuth();
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -87,6 +88,7 @@ export default function HomePage() {
     string | number | null
   >(null);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [edit, setEdit] = useState(false);
 
   // Filter transactions for today and month
   const today = new Date();
@@ -108,19 +110,19 @@ export default function HomePage() {
 
   // Totals calculations
   const todayExpenseTotal = todayTransactions
-    .filter((t) => t.type === "expense")
+    .filter((t) => t.type.toLowerCase() === "expense")
     .reduce((acc, t) => acc + t.amount, 0);
 
   const todayIncomeTotal = todayTransactions
-    .filter((t) => t.type === "income")
+    .filter((t) => t.type.toLowerCase() === "income")
     .reduce((acc, t) => acc + t.amount, 0);
 
   const monthExpenseTotal = monthTransactions
-    .filter((t) => t.type === "expense")
+    .filter((t) => t.type.toLowerCase() === "expense")
     .reduce((acc, t) => acc + t.amount, 0);
 
   const monthIncomeTotal = monthTransactions
-    .filter((t) => t.amount > 0)
+    .filter((t) => t.type.toLowerCase() === "income")
     .reduce((acc, t) => acc + t.amount, 0);
 
   const handleModalPress = (type: string) => {
@@ -142,7 +144,6 @@ export default function HomePage() {
   const handleSubmenu = () => {
     if (menuVisible) {
       setMenuVisible(false);
-      setSelectedTransactionId(null);
     }
   };
 
@@ -166,7 +167,17 @@ export default function HomePage() {
     };
 
     setModalVisible(false);
-    addTransaction(newTransaction);
+    if (edit) {
+      console.log("Editing transaction:", selectedTransactionId);
+      console.log("New transaction data:", newTransaction);
+      const updatedTransactions = currentTransactions.map((t) =>
+        t._id === selectedTransactionId ? { ...t, ...newTransaction } : t
+      );
+      setCurrentTransactions(updatedTransactions);
+      setEdit(false);
+    } else {
+      addTransaction(newTransaction);
+    }
 
     setForm({
       amount: "",
@@ -179,9 +190,18 @@ export default function HomePage() {
 
   // Edit handler
   const handleEdit = (item) => {
-    Alert.alert("Edit", `Edit: ${item.title}`);
+    setEdit(true);
+    setModalType(item.type.charAt(0).toUpperCase() + item.type.slice(1));
+    setForm({
+      amount: item.amount.toString(),
+      note: item.note,
+      type: item.type,
+      category: item.category,
+      date: item.date,
+    });
+
     setMenuVisible(false);
-    setSelectedTransactionId(null);
+    setModalVisible(true);
   };
 
   // Delete handler
@@ -197,7 +217,7 @@ export default function HomePage() {
           onPress: () => {
             setCurrentTransactions((prev) => prev.filter((t) => t._id !== id));
             setMenuVisible(false);
-            setSelectedTransactionId(null);
+            deleteTransaction(id);
           },
         },
       ]
@@ -225,17 +245,17 @@ export default function HomePage() {
         <View style={styles.leftSide}>
           <Text style={styles.summaryTitle}>Today's Expense</Text>
           <Text style={styles.summaryAmount}>
-            ${todayExpenseTotal.toFixed(2)}
+            ${Number(todayExpenseTotal).toFixed(2)}
           </Text>
 
           <Text style={styles.summaryTitle}>Month's Expense</Text>
           <Text style={styles.summaryAmount}>
-            ${monthExpenseTotal.toFixed(2)}
+            ${Number(monthExpenseTotal).toFixed(2)}
           </Text>
 
           <Text style={styles.summaryTitle}>Month's Income</Text>
           <Text style={styles.summaryAmount}>
-            ${monthIncomeTotal.toFixed(2)}
+            ${Number(monthIncomeTotal).toFixed(2)}
           </Text>
         </View>
         <View>
@@ -279,7 +299,7 @@ export default function HomePage() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>{`Add ${modalType}`} </Text>
+            <Text style={styles.modalTitle}>{`${edit ? "Edit" : "Add"} ${modalType}`} </Text>
             <TextInput
               placeholder="Category"
               value={form.category}
@@ -310,7 +330,7 @@ export default function HomePage() {
                 onPress={() => handleAddTransaction(modalType)}
                 style={styles.modalButton}
               >
-                <Text style={styles.modalButtonText}>Add</Text>
+                <Text style={styles.modalButtonText}>{edit ? "Update" : "Add"}</Text>
               </Pressable>
             </View>
           </View>
@@ -333,12 +353,12 @@ export default function HomePage() {
               {/* Plus/Minus sign */}
               <Text
                 style={
-                  item.type === "income"
+                  item.type.toLowerCase() === "income"
                     ? styles.transactionSignIncome
                     : styles.transactionSignExpense
                 }
               >
-                {item.type === "income" ? "+" : "-"}
+                {item.type.toLowerCase() === "income" ? "+" : "-"}
               </Text>
 
               {/* Middle: title and date */}
@@ -356,12 +376,12 @@ export default function HomePage() {
               <Text
                 style={[
                   styles.transactionAmount,
-                  item.type === "income"
+                  item.type.toLowerCase() === "income"
                     ? styles.incomeColor
                     : styles.expenseColor,
                 ]}
               >
-                {item.type === "income" ? "+" : "-"}$
+                {item.type.toLowerCase() === "income" ? "+" : "-"}$
                 {Math.abs(item.amount).toFixed(2)}
               </Text>
 
