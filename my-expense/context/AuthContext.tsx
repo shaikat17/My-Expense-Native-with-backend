@@ -72,9 +72,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const addTransaction = async (transaction: object) => {
-    console.log("Hit addTransaction: ", transaction);
-    // const res = await axiosInstance.get("/transactions");
-    // console.log("🚀 ~ addTransaction ~ res:", res)
+    const res = await axiosInstance.post("/transactions/add", {
+      transaction,
+    });
+    console.log("🚀 ~ addTransaction ~ res:", res.data.message)
   };
 
   useEffect(() => {
