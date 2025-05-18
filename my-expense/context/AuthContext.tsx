@@ -104,10 +104,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     loadUser();
+    getCurrentTransactions();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, login, signup, logout, loading, addTransaction, getCurrentTransactions, currentTransactions }}>
+    <AuthContext.Provider value={{ auth, login, signup, logout, loading, addTransaction, getCurrentTransactions, setCurrentTransactions, currentTransactions }}>
       {children}
     </AuthContext.Provider>
   );

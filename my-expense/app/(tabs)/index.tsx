@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { transform } from "@babel/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,8 +13,8 @@ import {
   Alert,
 } from "react-native";
 
-function formatCurrentDateTime() {
-  const now = new Date();
+function formatCurrentDateTime(isoDateString: string) {
+  const now = new Date(isoDateString);
   const optionsDate: Intl.DateTimeFormatOptions = {
     day: "numeric",
     month: "long",
@@ -32,18 +32,6 @@ function formatCurrentDateTime() {
   return { dateStr, timeStr };
 }
 
-const dummyTransactions = [
-  { id: "1", title: "Groceries", amount: -50, date: "2025-05-16T14:06:00" },
-  { id: "2", title: "Salary", amount: 1200, date: "2025-05-16T09:00:00" },
-  { id: "3", title: "Transport", amount: -20, date: "2025-05-14T16:30:00" },
-  {
-    id: "4",
-    title: "Electricity Bill",
-    amount: -70,
-    date: "2025-05-10T11:00:00",
-  },
-];
-
 // Utility to format date as "15 May, Thu, 2:06 PM"
 const formatTime = (isoDateString: string) => {
   const d = new Date(isoDateString);
@@ -59,15 +47,27 @@ const formatTime = (isoDateString: string) => {
 };
 
 export default function HomePage() {
+  // Context API
   const {
     auth: { user },
     logout,
     addTransaction,
     getCurrentTransactions,
     currentTransactions,
+    setCurrentTransactions,
   } = useAuth();
 
-  const { dateStr, timeStr } = formatCurrentDateTime();
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60 * 1000); // update every minute
+
+    return () => clearInterval(interval); // cleanup on unmount
+  }, []);
+
+  const { dateStr, timeStr } = formatCurrentDateTime(currentTime.toISOString());
 
   // States for modals
   const [modalVisible, setModalVisible] = useState(false);
@@ -88,9 +88,6 @@ export default function HomePage() {
   >(null);
   const [menuVisible, setMenuVisible] = useState(false);
 
-  // Data )
-  const [transactions, setTransactions] = useState(currentTransactions);
-
   // Filter transactions for today and month
   const today = new Date();
   const isSameDay = (d1: Date, d2: Date) =>
@@ -101,25 +98,25 @@ export default function HomePage() {
   const isSameMonth = (d1: Date, d2: Date) =>
     d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
 
-  const todayTransactions = transactions.filter((t) =>
+  const todayTransactions = currentTransactions.filter((t) =>
     isSameDay(new Date(t.date), today)
   );
 
-  const monthTransactions = transactions.filter((t) =>
+  const monthTransactions = currentTransactions.filter((t) =>
     isSameMonth(new Date(t.date), today)
   );
 
   // Totals calculations
   const todayExpenseTotal = todayTransactions
-    .filter((t) => t.amount < 0)
+    .filter((t) => t.type === "expense")
     .reduce((acc, t) => acc + t.amount, 0);
 
   const todayIncomeTotal = todayTransactions
-    .filter((t) => t.amount > 0)
+    .filter((t) => t.type === "income")
     .reduce((acc, t) => acc + t.amount, 0);
 
   const monthExpenseTotal = monthTransactions
-    .filter((t) => t.amount < 0)
+    .filter((t) => t.type === "expense")
     .reduce((acc, t) => acc + t.amount, 0);
 
   const monthIncomeTotal = monthTransactions
@@ -198,7 +195,7 @@ export default function HomePage() {
           text: "Delete",
           style: "destructive",
           onPress: () => {
-            setTransactions((prev) => prev.filter((t) => t.id !== id));
+            setCurrentTransactions((prev) => prev.filter((t) => t._id !== id));
             setMenuVisible(false);
             setSelectedTransactionId(null);
           },
@@ -386,7 +383,7 @@ export default function HomePage() {
                     <Text>Edit</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => handleDelete(item.id)}
+                    onPress={() => handleDelete(item._id)}
                     style={styles.menuItem}
                   >
                     <Text>Delete</Text>
