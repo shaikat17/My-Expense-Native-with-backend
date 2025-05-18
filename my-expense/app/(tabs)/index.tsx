@@ -56,6 +56,7 @@ export default function HomePage() {
     currentTransactions,
     setCurrentTransactions,
     deleteTransaction,
+    updateTransaction
   } = useAuth();
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -168,13 +169,12 @@ export default function HomePage() {
 
     setModalVisible(false);
     if (edit) {
-      console.log("Editing transaction:", selectedTransactionId);
-      console.log("New transaction data:", newTransaction);
       const updatedTransactions = currentTransactions.map((t) =>
         t._id === selectedTransactionId ? { ...t, ...newTransaction } : t
       );
       setCurrentTransactions(updatedTransactions);
       setEdit(false);
+      updateTransaction(selectedTransactionId, newTransaction);
     } else {
       addTransaction(newTransaction);
     }
@@ -224,9 +224,6 @@ export default function HomePage() {
     );
   };
 
-  const testBtn = () => {
-    getCurrentTransactions();
-  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -258,14 +255,7 @@ export default function HomePage() {
             ${Number(monthIncomeTotal).toFixed(2)}
           </Text>
         </View>
-        <View>
-          <Pressable
-            style={{ backgroundColor: "blue", padding: 10, borderRadius: 8 }}
-            onPress={testBtn}
-          >
-            <Text style={{ color: "white" }}>Button</Text>
-          </Pressable>
-        </View>
+        
 
         <View style={styles.rightSide}>
           <Text style={styles.dateText}>{dateStr}</Text>

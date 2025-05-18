@@ -79,7 +79,7 @@ export const updateTransaction = async (req, res) => {
 
     const updatedTransaction = await Transaction.findOneAndUpdate(
       { _id: transactionId, user: userId },
-      req.body,
+      req.body.transaction,
       { new: true }
     );
 

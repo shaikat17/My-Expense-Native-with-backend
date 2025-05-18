@@ -123,13 +123,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     getCurrentTransactions();
   };
 
+  // Update Transactions
+  const updateTransaction = async (transactionId: string, 
+    updatedTransaction: object) => {
+    console.log("Updating transaction with ID:", transactionId);
+    console.log("Updated transaction data:", updatedTransaction);
+    setLoading(true);
+    const res = await axiosInstance.put(`/transactions/update/${transactionId}`, {
+      transaction: updatedTransaction,
+    });
+
+    if (res.status === 200) {
+      // Handle success
+      setLoading(false);
+      Alert.alert("Success", "Transaction updated successfully");
+    } else if (res.status === 404) {
+      // Handle not found
+      setLoading(false);
+      Alert.alert("Error", "Transaction not found");
+    } else {
+      // Handle error
+      setLoading(false);
+      Alert.alert("Error", "Failed to update transaction");
+    }
+    getCurrentTransactions();
+  };
+
   useEffect(() => {
     loadUser();
     getCurrentTransactions();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, login, signup, logout, loading, addTransaction, getCurrentTransactions, setCurrentTransactions, currentTransactions, deleteTransaction }}>
+    <AuthContext.Provider value={{ auth, login, signup, logout, loading, addTransaction, getCurrentTransactions, setCurrentTransactions, currentTransactions, deleteTransaction, updateTransaction }}>
       {children}
     </AuthContext.Provider>
   );
