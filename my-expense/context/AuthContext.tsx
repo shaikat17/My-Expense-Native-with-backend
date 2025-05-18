@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import axiosInstance from "../utils/axios";
 import { router } from "expo-router";
+import { Alert } from "react-native";
 
 const AuthContext = createContext<any>(null);
 
@@ -72,10 +73,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const addTransaction = async (transaction: object) => {
+    setLoading(true);
     const res = await axiosInstance.post("/transactions/add", {
       transaction,
     });
-    console.log("🚀 ~ addTransaction ~ res:", res.data.message)
+    
+    if(res.status === 201) {
+      // Handle success
+      setLoading(false);
+      Alert.alert("Success", "Transaction added successfully");
+    } else {
+      // Handle error
+      setLoading(false);
+      Alert.alert("Error", "Failed to add transaction");
+    }
   };
 
   useEffect(() => {
