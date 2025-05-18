@@ -59,13 +59,22 @@ const formatTime = (isoDateString: string) => {
 };
 
 export default function HomePage() {
-  const { auth: { user }, logout } = useAuth();
+  const { auth: { user }, logout, addTransaction } = useAuth();
 
   const { dateStr, timeStr } = formatCurrentDateTime();
 
   // States for modals
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState("");
+
+  // input states
+  const [form, setForm] = useState({
+    amount: '',
+    note: '',
+    type: modalType,        
+    category: '',
+    date: new Date().toISOString(),        
+  });
 
   // States for 3-dot menu
   const [selectedTransactionId, setSelectedTransactionId] = useState< string | number | null>(null);
@@ -122,6 +131,38 @@ export default function HomePage() {
       setSelectedTransactionId(id);
       setMenuVisible(true);
     }
+  };
+
+
+  const handleChange = (key: string, value: any) => {
+    setForm(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  // Add transaction handler
+  const handleAddTransaction = (transaction: string) => {
+    if (!form.amount || !form.category) {
+      Alert.alert("Error", "Please fill amount and category");
+      return;
+    }
+    const newTransaction = {
+      ...form,
+      type: modalType,
+      date: new Date().toISOString(),
+    };
+
+    setModalVisible(false);
+    addTransaction(newTransaction);
+
+    setForm({
+      amount: '',
+      note: '',
+      type: modalType,
+      category: '',
+      date: new Date().toISOString(),
+    });
   };
 
   // Edit handler
@@ -279,12 +320,21 @@ export default function HomePage() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>{`Add ${modalType}`} </Text>
-            <TextInput placeholder="Title" style={styles.input} />
+            <TextInput placeholder="Category"
+              value={form.category}
+            onChangeText={(text) => handleChange('category', text)}
+              style={styles.input} />
             <TextInput
               placeholder="Amount"
               keyboardType="numeric"
               style={styles.input}
+              value={form.amount}
+              onChangeText={(text) => handleChange('amount', text)}
             />
+            <TextInput placeholder="Note"
+              value={form.note}
+            onChangeText={(text) => handleChange('note', text)}
+              style={styles.input} />
             <View style={styles.modalButtons}>
               <Pressable
                 onPress={() => setModalVisible(false)}
@@ -293,7 +343,7 @@ export default function HomePage() {
                 <Text style={styles.modalButtonText}>Cancel</Text>
               </Pressable>
               <Pressable
-                onPress={() => setModalVisible(false)}
+                onPress={() => handleAddTransaction(modalType)}
                 style={styles.modalButton}
               >
                 <Text style={styles.modalButtonText}>Add</Text>

@@ -1,76 +1,88 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import * as SecureStore from 'expo-secure-store';
-import  axiosInstance from '../utils/axios';
-import { router } from 'expo-router';
+import { createContext, useContext, useEffect, useState } from "react";
+import * as SecureStore from "expo-secure-store";
+import axiosInstance from "../utils/axios";
+import { router } from "expo-router";
 
 const AuthContext = createContext<any>(null);
 
+interface AuthContextType {
+  token: string;
+  user: any;
+}
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [auth, setAuth] = useState({ token: String, user: null });
+  const [auth, setAuth] = useState<AuthContextType>({ token: '', user: null });
   const [loading, setLoading] = useState(true);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
-    const res = await axiosInstance.post('/auth/login', { email, password });
-  
+    const res = await axiosInstance.post("/auth/login", { email, password });
+
     const { token, user } = res.data;
-  
+
     // Store token as string directly
-    await SecureStore.setItemAsync('token', token);
-  
+    await SecureStore.setItemAsync("token", token);
+
     // Store user object as JSON string
-    await SecureStore.setItemAsync('user', JSON.stringify(user));
-  
+    await SecureStore.setItemAsync("user", JSON.stringify(user));
+
     // Set context/state
     setAuth({ token, user });
-  
+
     setLoading(false);
     // Navigate to home screen
-    router.replace('/(tabs)');
+    router.replace("/(tabs)");
   };
-  
 
   const signup = async (name: string, email: string, password: string) => {
     setLoading(true);
-    const res = await axiosInstance.post('/auth/signup', { name, email, password });
+    const res = await axiosInstance.post("/auth/signup", {
+      name,
+      email,
+      password,
+    });
     const { token, user } = res.data;
 
-    await SecureStore.setItemAsync('token', token);
-    await SecureStore.setItemAsync('user', JSON.stringify(user));
+    await SecureStore.setItemAsync("token", token);
+    await SecureStore.setItemAsync("user", JSON.stringify(user));
 
     setAuth({ token, user });
 
     setLoading(false);
-    router.replace('/(tabs)');
+    router.replace("/(tabs)");
   };
 
   const logout = async () => {
     setLoading(true);
-    await SecureStore.deleteItemAsync('token');
-    await SecureStore.deleteItemAsync('user');
-    setAuth({ token: String, user: null });
+    await SecureStore.deleteItemAsync("token");
+    await SecureStore.deleteItemAsync("user");
+    setAuth({ token: '', user: null });
     setLoading(false);
-    router.replace('/auth/login');
+    router.replace("/auth/login");
   };
 
   const loadUser = async () => {
-    const token = await SecureStore.getItemAsync('token');
-    const user = await SecureStore.getItemAsync('user');
+    const token = await SecureStore.getItemAsync("token");
+    const user = await SecureStore.getItemAsync("user");
 
-    console.log(token, user);
     if (token && user) {
       setAuth({ token, user: JSON.parse(user) });
     }
     setLoading(false);
   };
 
+  const addTransaction = async (transaction: object) => {
+    console.log("Hit addTransaction: ", transaction);
+    // const res = await axiosInstance.get("/transactions");
+    // console.log("🚀 ~ addTransaction ~ res:", res)
+  };
+
   useEffect(() => {
     loadUser();
   }, []);
 
-
   return (
-    <AuthContext.Provider value={{ auth, login, signup, logout, loading }}>
+    <AuthContext.Provider value={{ auth, login, signup, logout, loading, addTransaction }}>
       {children}
     </AuthContext.Provider>
   );
