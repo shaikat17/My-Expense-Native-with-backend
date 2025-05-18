@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
+import { transform } from "@babel/core";
 import React, { useState } from "react";
 import {
   View,
@@ -140,6 +141,14 @@ export default function HomePage() {
     }
   };
 
+  // Handle submenu
+  const handleSubmenu = () => {
+    if (menuVisible) {
+      setMenuVisible(false);
+      setSelectedTransactionId(null);
+    }
+  };
+
   const handleChange = (key: string, value: any) => {
     setForm((prev) => ({
       ...prev,
@@ -203,13 +212,9 @@ export default function HomePage() {
   };
 
   return (
+    <View style={{ flex: 1 }}>
     <Pressable
-      onPress={() => {
-        if (menuVisible) {
-          setMenuVisible(false);
-          setSelectedTransactionId(null);
-        }
-      }}
+      onPress={handleSubmenu}
       style={styles.container}
     >
       <View style={styles.welcomeContainer}>
@@ -267,78 +272,6 @@ export default function HomePage() {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.recentTitle}>Today's Transactions</Text>
-
-      <FlatList
-        data={todayTransactions.sort(
-          (a, b) => new Date(b.date) - new Date(a.date)
-        )}
-        keyExtractor={(item) => item.id}
-        style={styles.transactionList}
-        renderItem={({ item }) => (
-          <View style={styles.transactionItem}>
-            {/* Plus/Minus sign */}
-            <Text
-              style={
-                item.amount > 0
-                  ? styles.transactionSignIncome
-                  : styles.transactionSignExpense
-              }
-            >
-              {item.amount > 0 ? "+" : "-"}
-            </Text>
-
-            {/* Middle: title and date */}
-            <View style={styles.transactionDetails}>
-              <Text style={styles.transactionTitle}>{item.title}</Text>
-              <Text style={styles.transactionDate}>
-                {formatTime(item.date)}
-              </Text>
-            </View>
-
-            {/* Amount */}
-            <Text
-              style={[
-                styles.transactionAmount,
-                item.amount > 0 ? styles.incomeColor : styles.expenseColor,
-              ]}
-            >
-              {item.amount > 0 ? "+" : "-"}${Math.abs(item.amount).toFixed(2)}
-            </Text>
-
-            {/* Three-dot menu */}
-            <Pressable
-              onPress={() => toggleMenu(item.id)}
-              style={styles.threeDotButton}
-            >
-              <Text style={styles.threeDotText}>⋮</Text>
-            </Pressable>
-
-            {/* Conditional menu */}
-            {menuVisible && selectedTransactionId === item.id && (
-              <View style={styles.menu}>
-                <TouchableOpacity
-                  onPress={() => handleEdit(item)}
-                  style={styles.menuItem}
-                >
-                  <Text>Edit</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleDelete(item.id)}
-                  style={styles.menuItem}
-                >
-                  <Text>Delete</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        )}
-        ListEmptyComponent={
-          <Text style={{ textAlign: "center", color: "#888", marginTop: 20 }}>
-            No transactions for today
-          </Text>
-        }
-      />
 
       {/* Modal */}
       <Modal
@@ -386,14 +319,97 @@ export default function HomePage() {
           </View>
         </View>
       </Modal>
-    </Pressable>
+      </Pressable>
+      
+      <View style={styles.transactionContainer}>
+        <Text style={styles.recentTitle}>Today's Transactions</Text>
+        <FlatList
+          data={todayTransactions.sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+          )}
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={{
+            paddingBottom: 15,}}
+          style={styles.transactionList}
+          renderItem={({ item }) => (
+            <Pressable onPress={handleSubmenu} style={styles.transactionItem}>
+              {/* Plus/Minus sign */}
+              <Text
+                style={
+                  item.type === "income"
+                    ? styles.transactionSignIncome
+                    : styles.transactionSignExpense
+                }
+              >
+                {item.type === "income" ? "+" : "-"}
+              </Text>
+
+              {/* Middle: title and date */}
+              <View style={styles.transactionDetails}>
+                <Text style={styles.transactionTitle}>{item.category}</Text>
+                <Text style={styles.transactionDate}>
+                  {item.note || "No notes available."}
+                </Text>
+                <Text style={styles.transactionDate}>
+                  {formatTime(item.date)}
+                </Text>
+              </View>
+
+              {/* Amount */}
+              <Text
+                style={[
+                  styles.transactionAmount,
+                  item.type === "income"
+                    ? styles.incomeColor
+                    : styles.expenseColor,
+                ]}
+              >
+                {item.type === "income" ? "+" : "-"}$
+                {Math.abs(item.amount).toFixed(2)}
+              </Text>
+
+              {/* Three-dot menu */}
+              <Pressable
+                onPress={() => toggleMenu(item._id)}
+                style={styles.threeDotButton}
+              >
+                <Text style={styles.threeDotText}>⋮</Text>
+              </Pressable>
+
+              {/* Conditional menu */}
+              {menuVisible && selectedTransactionId === item._id && (
+                <View style={styles.menu}>
+                  <TouchableOpacity
+                    onPress={() => handleEdit(item)}
+                    style={styles.menuItem}
+                  >
+                    <Text>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleDelete(item.id)}
+                    style={styles.menuItem}
+                  >
+                    <Text>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </Pressable>
+          )}
+          ListEmptyComponent={
+            <Text style={{ textAlign: "center", color: "#888", marginTop: 20 }}>
+              No transactions for today
+            </Text>
+          }
+        />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 24,
+    paddingBottom: 0,
     backgroundColor: "#fff",
   },
   welcomeContainer: {
@@ -504,8 +520,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     color: "#333",
   },
+  transactionContainer: {
+    flex: 1,
+    padding: 24,
+    paddingTop: 0,
+    backgroundColor: "#fff",
+  },
   transactionList: {
-    flexGrow: 0,
     paddingBottom: 30,
   },
   transactionItem: {
@@ -566,7 +587,7 @@ const styles = StyleSheet.create({
   },
   menu: {
     position: "absolute",
-    top: "50%",
+    top: "10%",
     right: 40,
     backgroundColor: "#fff",
     borderRadius: 6,
