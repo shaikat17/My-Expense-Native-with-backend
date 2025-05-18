@@ -12,17 +12,16 @@ import {
   Alert,
 } from "react-native";
 
-
 function formatCurrentDateTime() {
   const now = new Date();
   const optionsDate: Intl.DateTimeFormatOptions = {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   };
   const optionsTime: Intl.DateTimeFormatOptions = {
-    hour: 'numeric',
-    minute: 'numeric',
+    hour: "numeric",
+    minute: "numeric",
     hour12: true,
   };
 
@@ -48,18 +47,24 @@ const dummyTransactions = [
 const formatTime = (isoDateString: string) => {
   const d = new Date(isoDateString);
   const options: Intl.DateTimeFormatOptions = {
-    day: 'numeric',
-    month: 'short',
-    weekday: 'short' as 'short', // Add this type annotation
-    hour: 'numeric',
-    minute: 'numeric',
+    day: "numeric",
+    month: "short",
+    weekday: "short" as "short", // Add this type annotation
+    hour: "numeric",
+    minute: "numeric",
     hour12: true,
   };
-  return d.toLocaleString('en-US', options).replace(',', ',');
+  return d.toLocaleString("en-US", options).replace(",", ",");
 };
 
 export default function HomePage() {
-  const { auth: { user }, logout, addTransaction } = useAuth();
+  const {
+    auth: { user },
+    logout,
+    addTransaction,
+    getCurrentTransactions,
+    currentTransactions,
+  } = useAuth();
 
   const { dateStr, timeStr } = formatCurrentDateTime();
 
@@ -69,19 +74,21 @@ export default function HomePage() {
 
   // input states
   const [form, setForm] = useState({
-    amount: '',
-    note: '',
-    type: modalType,        
-    category: '',
-    date: new Date().toISOString(),        
+    amount: "",
+    note: "",
+    type: modalType,
+    category: "",
+    date: new Date().toISOString(),
   });
 
   // States for 3-dot menu
-  const [selectedTransactionId, setSelectedTransactionId] = useState< string | number | null>(null);
+  const [selectedTransactionId, setSelectedTransactionId] = useState<
+    string | number | null
+  >(null);
   const [menuVisible, setMenuVisible] = useState(false);
 
-  // Dummy state to simulate transactions (replace with real state in your app)
-  const [transactions, setTransactions] = useState(dummyTransactions);
+  // Data )
+  const [transactions, setTransactions] = useState(currentTransactions);
 
   // Filter transactions for today and month
   const today = new Date();
@@ -121,7 +128,7 @@ export default function HomePage() {
   const handleModalPress = (type: string) => {
     setModalType(type);
     setModalVisible(true);
-  }
+  };
   // Toggle 3-dot menu
   const toggleMenu = (id: string | number) => {
     if (selectedTransactionId === id && menuVisible) {
@@ -133,9 +140,8 @@ export default function HomePage() {
     }
   };
 
-
   const handleChange = (key: string, value: any) => {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -157,10 +163,10 @@ export default function HomePage() {
     addTransaction(newTransaction);
 
     setForm({
-      amount: '',
-      note: '',
+      amount: "",
+      note: "",
       type: modalType,
-      category: '',
+      category: "",
       date: new Date().toISOString(),
     });
   };
@@ -193,15 +199,19 @@ export default function HomePage() {
   };
 
   const testBtn = () => {
-  }
+    getCurrentTransactions();
+  };
 
   return (
-    <Pressable onPress={() => {
-      if(menuVisible) {
-        setMenuVisible(false);
-        setSelectedTransactionId(null);
-      }
-    }} style={styles.container}>
+    <Pressable
+      onPress={() => {
+        if (menuVisible) {
+          setMenuVisible(false);
+          setSelectedTransactionId(null);
+        }
+      }}
+      style={styles.container}
+    >
       <View style={styles.welcomeContainer}>
         <Text style={styles.welcome}>Welcome, {user?.name}</Text>
         <Pressable onPress={logout}>
@@ -210,27 +220,36 @@ export default function HomePage() {
       </View>
 
       <View style={styles.summaryCard}>
-      <View style={styles.leftSide}>
-        <Text style={styles.summaryTitle}>Today's Expense</Text>
-        <Text style={styles.summaryAmount}>${todayExpenseTotal.toFixed(2)}</Text>
+        <View style={styles.leftSide}>
+          <Text style={styles.summaryTitle}>Today's Expense</Text>
+          <Text style={styles.summaryAmount}>
+            ${todayExpenseTotal.toFixed(2)}
+          </Text>
 
-        <Text style={styles.summaryTitle}>Month's Expense</Text>
-        <Text style={styles.summaryAmount}>${monthExpenseTotal.toFixed(2)}</Text>
+          <Text style={styles.summaryTitle}>Month's Expense</Text>
+          <Text style={styles.summaryAmount}>
+            ${monthExpenseTotal.toFixed(2)}
+          </Text>
 
-        <Text style={styles.summaryTitle}>Month's Income</Text>
-        <Text style={styles.summaryAmount}>${monthIncomeTotal.toFixed(2)}</Text>
-      </View>
+          <Text style={styles.summaryTitle}>Month's Income</Text>
+          <Text style={styles.summaryAmount}>
+            ${monthIncomeTotal.toFixed(2)}
+          </Text>
+        </View>
         <View>
-          <Pressable style={{backgroundColor: 'blue', padding: 10, borderRadius: 8}} onPress={testBtn}>
-            <Text style={{color: 'white'}}>Button</Text>
+          <Pressable
+            style={{ backgroundColor: "blue", padding: 10, borderRadius: 8 }}
+            onPress={testBtn}
+          >
+            <Text style={{ color: "white" }}>Button</Text>
           </Pressable>
-      </View>
+        </View>
 
-      <View style={styles.rightSide}>
-        <Text style={styles.dateText}>{dateStr}</Text>
-        <Text style={styles.timeText}>{timeStr}</Text>
+        <View style={styles.rightSide}>
+          <Text style={styles.dateText}>{dateStr}</Text>
+          <Text style={styles.timeText}>{timeStr}</Text>
+        </View>
       </View>
-    </View>
 
       <View style={styles.buttonsRow}>
         <TouchableOpacity
@@ -261,7 +280,10 @@ export default function HomePage() {
             {/* Plus/Minus sign */}
             <Text
               style={
-                item.amount > 0 ? styles.transactionSignIncome : styles.transactionSignExpense}
+                item.amount > 0
+                  ? styles.transactionSignIncome
+                  : styles.transactionSignExpense
+              }
             >
               {item.amount > 0 ? "+" : "-"}
             </Text>
@@ -328,21 +350,25 @@ export default function HomePage() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>{`Add ${modalType}`} </Text>
-            <TextInput placeholder="Category"
+            <TextInput
+              placeholder="Category"
               value={form.category}
-            onChangeText={(text) => handleChange('category', text)}
-              style={styles.input} />
+              onChangeText={(text) => handleChange("category", text)}
+              style={styles.input}
+            />
             <TextInput
               placeholder="Amount"
               keyboardType="numeric"
               style={styles.input}
               value={form.amount}
-              onChangeText={(text) => handleChange('amount', text)}
+              onChangeText={(text) => handleChange("amount", text)}
             />
-            <TextInput placeholder="Note"
+            <TextInput
+              placeholder="Note"
               value={form.note}
-            onChangeText={(text) => handleChange('note', text)}
-              style={styles.input} />
+              onChangeText={(text) => handleChange("note", text)}
+              style={styles.input}
+            />
             <View style={styles.modalButtons}>
               <Pressable
                 onPress={() => setModalVisible(false)}
@@ -390,38 +416,38 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   summaryCard: {
-    backgroundColor: '#0a7ea4',
+    backgroundColor: "#0a7ea4",
     borderRadius: 12,
     padding: 20,
     marginBottom: 30,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   leftSide: {
     flex: 1,
   },
   rightSide: {
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+    justifyContent: "center",
+    alignItems: "flex-end",
   },
   summaryTitle: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
     marginBottom: 6,
   },
   summaryAmount: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 10,
   },
   dateText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   timeText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
     marginTop: 4,
   },

@@ -14,6 +14,7 @@ interface AuthContextType {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [auth, setAuth] = useState<AuthContextType>({ token: '', user: null });
   const [loading, setLoading] = useState(true);
+  const [currentTransactions, setCurrentTransactions] = useState<object[]>([]);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -89,12 +90,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const getCurrentTransactions = async () => {
+    setLoading(true);
+    const res = await axiosInstance.get("/transactions/current");
+    
+    if (res.status === 200) {
+      setCurrentTransactions(res.data);
+    } else {
+      Alert.alert("Error", "Failed to fetch transactions");
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     loadUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, login, signup, logout, loading, addTransaction }}>
+    <AuthContext.Provider value={{ auth, login, signup, logout, loading, addTransaction, getCurrentTransactions, currentTransactions }}>
       {children}
     </AuthContext.Provider>
   );
