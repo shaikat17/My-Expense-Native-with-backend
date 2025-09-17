@@ -13,7 +13,6 @@ export default function EditProfile() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Edit Profile</Text>
 
       <TextInput
         style={styles.input}

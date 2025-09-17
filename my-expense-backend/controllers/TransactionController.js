@@ -1,9 +1,9 @@
-import Transaction from '../models/Transaction.js';
+import Transaction from "../models/Transaction.js";
 
 export const addTransaction = async (req, res) => {
   try {
-      const { type, amount, category, note, date } = req.body.transaction;
-      console.log(req.body)
+    const { type, amount, category, note, date } = req.body.transaction;
+    console.log(req.body);
 
     const transaction = new Transaction({
       type: type?.toLowerCase(), // Ensure type is lowercase
@@ -17,15 +17,14 @@ export const addTransaction = async (req, res) => {
     await transaction.save();
 
     res.status(201).json({
-      message: 'Transaction added successfully',
+      message: "Transaction added successfully",
       transaction,
     });
   } catch (error) {
-      console.log("🚀 ~ addTransaction ~ error:", error)
-    res.status(500).json({ error: 'Something went wrong' });
+    console.log("🚀 ~ addTransaction ~ error:", error);
+    res.status(500).json({ error: "Something went wrong" });
   }
 };
-
 
 export const getCurrentTransactions = async (req, res) => {
   try {
@@ -34,7 +33,15 @@ export const getCurrentTransactions = async (req, res) => {
     // Get current month range
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); // for example (2025, 4, 1)
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999); // for example (2025, 4, 30, 23, 59, 59, 999)
+    const endOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    ); // for example (2025, 4, 30, 23, 59, 59, 999)
 
     const transactions = await Transaction.find({
       user: userId,
@@ -46,8 +53,8 @@ export const getCurrentTransactions = async (req, res) => {
 
     res.status(200).json(transactions);
   } catch (error) {
-    console.error('🚨 ~ getTransactions ~ error:', error);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("🚨 ~ getTransactions ~ error:", error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -62,13 +69,13 @@ export const deleteTransaction = async (req, res) => {
     });
 
     if (!transaction) {
-      return res.status(404).json({ message: 'Transaction not found' });
+      return res.status(404).json({ message: "Transaction not found" });
     }
 
-    res.status(200).json({ message: 'Transaction deleted successfully' });
+    res.status(200).json({ message: "Transaction deleted successfully" });
   } catch (error) {
-    console.error('🚨 ~ deleteTransaction ~ error:', error);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("🚨 ~ deleteTransaction ~ error:", error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -84,15 +91,97 @@ export const updateTransaction = async (req, res) => {
     );
 
     if (!updatedTransaction) {
-      return res.status(404).json({ message: 'Transaction not found' });
+      return res.status(404).json({ message: "Transaction not found" });
     }
 
     res.status(200).json({
-      message: 'Transaction updated successfully',
+      message: "Transaction updated successfully",
       transaction: updatedTransaction,
     });
   } catch (error) {
-    console.error('🚨 ~ updateTransaction ~ error:', error);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("🚨 ~ updateTransaction ~ error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// Get Transactions by Month and Year
+export const getTransactionsByMonthAndYear = async (req, res) => {
+  try {
+    const { year, month } = req.query;
+    const userId = req.user.id;
+
+    console.log(year, month, userId);
+
+    if (!month || !year || !userId) {
+      return res
+        .status(400)
+        .json({ message: "Missing month, year, or userId query parameter" });
+    }
+    const numericMonth = parseInt(month, 10);
+    const numericYear = parseInt(year, 10);
+
+    if (
+      isNaN(numericMonth) ||
+      isNaN(numericYear) ||
+      numericMonth < 1 ||
+      numericMonth > 12
+    ) {
+      return res.status(400).json({ message: "Invalid month or year" });
+    }
+
+    // 1. Construct the date range
+    const startDate = new Date(numericYear, numericMonth - 1, 1);
+    const endDate = new Date(numericYear, numericMonth, 1);
+
+    // 2. Query the database
+    const transactions = await Transaction.find({
+      user: userId, // Match the user ID
+      date: {
+        $gte: startDate,
+        $lt: endDate,
+      },
+    }).sort({ date: -1 });
+
+    res.status(200).json(transactions);
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Get Transactions by Year
+export const getTransactionsByYear = async (req, res) => {
+  try {
+    const { year } = req.query;
+    const userId = req.user.id;
+
+    if (!year || !userId) {
+      return res
+        .status(400)
+        .json({ message: "Missing year or userId query parameter" });
+    }
+    const numericYear = parseInt(year, 10);
+
+    if (isNaN(numericYear)) {
+      return res.status(400).json({ message: "Invalid year" });
+    }
+
+    // 1. Construct the date range
+    const startDate = new Date(numericYear, 0, 1); // January 1st
+    const endDate = new Date(numericYear + 1, 0, 1); // January 1st of the next year
+
+    // 2. Query the database
+    const transactions = await Transaction.find({
+      user: userId, // Match the user ID
+      date: {
+        $gte: startDate,
+        $lt: endDate,
+      },
+    }).sort({ date: -1 });
+
+    res.status(200).json(transactions);
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

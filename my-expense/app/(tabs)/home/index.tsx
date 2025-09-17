@@ -242,17 +242,17 @@ export default function HomePage() {
         <View style={styles.leftSide}>
           <Text style={styles.summaryTitle}>Today's Expense</Text>
           <Text style={styles.summaryAmount}>
-            ${Number(todayExpenseTotal).toFixed(2)}
+            ৳{Number(todayExpenseTotal).toFixed(2)}
           </Text>
 
           <Text style={styles.summaryTitle}>Month's Expense</Text>
           <Text style={styles.summaryAmount}>
-            ${Number(monthExpenseTotal).toFixed(2)}
+            ৳{Number(monthExpenseTotal).toFixed(2)}
           </Text>
 
           <Text style={styles.summaryTitle}>Month's Income</Text>
           <Text style={styles.summaryAmount}>
-            ${Number(monthIncomeTotal).toFixed(2)}
+            ৳{Number(monthIncomeTotal).toFixed(2)}
           </Text>
         </View>
         
@@ -371,7 +371,7 @@ export default function HomePage() {
                     : styles.expenseColor,
                 ]}
               >
-                {item.type.toLowerCase() === "income" ? "+" : "-"}$
+                {item.type.toLowerCase() === "income" ? "+" : "-"}৳
                 {Math.abs(item.amount).toFixed(2)}
               </Text>
 

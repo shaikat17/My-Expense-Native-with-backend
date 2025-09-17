@@ -14,7 +14,7 @@ export default function Account() {
     auth: { user },
   } = useAuth();
 
-  console.log(user);
+  // console.log(user);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -33,10 +33,16 @@ export default function Account() {
         <View style={styles.subMenuHeader}>
           <Text style={styles.subMenuTitle}>Account Settings</Text>
         </View>
-        <TouchableOpacity style={styles.subMenuItem} onPress={() => router.push("/profile/edit-profile")}>
+        <TouchableOpacity style={styles.subMenuItem} onPress={() => router.push("/account/edit-profile")}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <IconSymbol name="pencil" size={24} color="#0a7ea4" />
             <Text style={{ marginLeft: 10 }}>Edit Profile</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.subMenuItem} onPress={() => router.push("/account/change-password")}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <IconSymbol name="lock.fill" size={24} color="#0a7ea4" />
+            <Text style={{ marginLeft: 10 }}>Change Password</Text>
           </View>
         </TouchableOpacity>
       </View>

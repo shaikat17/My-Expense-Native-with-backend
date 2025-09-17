@@ -1,7 +1,7 @@
 // routes/transaction.js
 import express from 'express';
 import authMiddleware from '../middlewares/authMiddleware.js';
-import { addTransaction, deleteTransaction, getCurrentTransactions, updateTransaction } from '../controllers/TransactionController.js';
+import { addTransaction, deleteTransaction, getCurrentTransactions, getTransactionsByMonthAndYear, getTransactionsByYear, updateTransaction } from '../controllers/TransactionController.js';
 const router = express.Router();
 
 // Test route
@@ -20,5 +20,11 @@ router.delete('/delete/:id', authMiddleware, deleteTransaction);
 
 // update Transaction
 router.put('/update/:id', authMiddleware, updateTransaction);
+
+// Get Transactions by Month and Year
+router.get('/monthly', authMiddleware, getTransactionsByMonthAndYear);
+
+// Get Transactions by Year
+router.get('/yearly', authMiddleware, getTransactionsByYear);
 
 export default router;

@@ -21,6 +21,7 @@ const MAPPING = {
   'chart.bar.fill': 'bar-chart',
   'person.crop.circle.fill': 'account-circle',
   'pencil': 'edit',
+  'lock.fill': 'lock',
 } as IconMapping;
 
 /**
